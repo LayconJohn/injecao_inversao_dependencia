@@ -9,11 +9,11 @@ test("Deve adicionar um pedidos com um ou mais itens adicionados", async () => {
     const input = {
         items: [
             {
-                producId: 1,
+                productId: 1,
                 quantity: 1
             },
             {
-                producId: 2,
+                productId: 2,
                 quantity: 2
             },
         ],

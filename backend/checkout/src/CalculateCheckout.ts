@@ -1,12 +1,11 @@
 import pgp from "pg-promise";
-import axios from "axios";
+import CurrencyGateway from "./CurrencyGateway";
 
 export class CalculateCheckout {
-	async execute(input: any) {
+	async execute(input: Input): Promise<Output> {
 		const connection = pgp()("postgres://postgres:123456@localhost:5432/app");
-		const response = await axios.get("http://localhost:3000/currencies");
-		const currencies = response.data;
-		const currency = currencies[input.currency];
+		const currencyGateway = new CurrencyGateway();
+		const currency = await currencyGateway.getCurrency(input.currency);
 		let subtotal = 0;
 		const freight = 2.6;
 		const protection = 9;
@@ -35,4 +34,17 @@ export class CalculateCheckout {
 			total: Math.round(total * currency * 100)/100
 		};
 	}
+}
+
+type Input = {
+	items: {productId: number, quantity: number}[],
+	country: string,
+	currency: string
+}
+
+type Output = {
+	subtotal: number,
+	taxes: number,
+	freight: number,
+	total: number
 }
