@@ -1,16 +1,17 @@
-import pgp from "pg-promise";
 import CurrencyGateway from "./CurrencyGateway";
+import ProductRepository from "./ProductRepository";
 
 export class CalculateCheckout {
 	async execute(input: Input): Promise<Output> {
-		const connection = pgp()("postgres://postgres:123456@localhost:5432/app");
 		const currencyGateway = new CurrencyGateway();
+		const productRepository = new ProductRepository()
+
 		const currency = await currencyGateway.getCurrency(input.currency);
 		let subtotal = 0;
 		const freight = 2.6;
 		const protection = 9;
 		for (const item of input.items) {
-			const [product] = await connection.query("select * from branas.product where product_id = $1", [item.productId]);
+			const product = await productRepository.getProduct(item.productId)
 			const amount = parseFloat(product.amount);
 			const itemAmount = item.quantity * amount;
 			subtotal += itemAmount;
@@ -26,7 +27,6 @@ export class CalculateCheckout {
 			}
 		}
 		const total = subtotal + taxes + freight;
-		await connection.$pool.end();
 		return {
 			subtotal: Math.round(subtotal * currency * 100)/100,
 			taxes: Math.round(taxes * currency * 100)/100,
