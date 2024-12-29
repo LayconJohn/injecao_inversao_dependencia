@@ -2,16 +2,24 @@ import CurrencyGateway from "./CurrencyGateway";
 import ProductRepository from "./ProductRepository";
 
 export class CalculateCheckout {
-	async execute(input: Input): Promise<Output> {
-		const currencyGateway = new CurrencyGateway();
-		const productRepository = new ProductRepository()
+	currencyGateway: CurrencyGateway;
+	productRepository: ProductRepository;
 
-		const currency = await currencyGateway.getCurrency(input.currency);
+	constructor(
+		currencyGateway: CurrencyGateway,
+		productRepository: ProductRepository,
+	) {
+		this.currencyGateway = currencyGateway;
+		this.productRepository = productRepository;
+	}
+
+	async execute(input: Input): Promise<Output> {
+		const currency = await this.currencyGateway.getCurrency(input.currency);
 		let subtotal = 0;
 		const freight = 2.6;
 		const protection = 9;
 		for (const item of input.items) {
-			const product = await productRepository.getProduct(item.productId)
+			const product = await this.productRepository.getProduct(item.productId)
 			const amount = parseFloat(product.amount);
 			const itemAmount = item.quantity * amount;
 			subtotal += itemAmount;
