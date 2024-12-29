@@ -1,12 +1,12 @@
 import { CalculateCheckout } from "../src/CalculateCheckout";
 import CurrencyGateway, { CurrencyGatewayHTTP } from "../src/CurrencyGateway";
-import ProductRepository from "../src/ProductRepository";
+import ProductRepository, { ProductRepositoryDatabase } from "../src/ProductRepository";
 
 let calculateCheckout: CalculateCheckout;
 
 beforeEach(() => {
     const currencyGateway = new CurrencyGatewayHTTP();
-    const productRepository = new ProductRepository()
+    const productRepository = new ProductRepositoryDatabase()
     calculateCheckout = new CalculateCheckout(currencyGateway, productRepository);
 })
 test("Deve adicionar um pedidos com um ou mais itens adicionados", async () => {
