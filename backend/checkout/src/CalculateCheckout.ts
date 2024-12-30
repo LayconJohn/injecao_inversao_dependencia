@@ -1,4 +1,5 @@
 import CurrencyGateway from "./CurrencyGateway";
+import { Registry } from "./DI";
 import ProductRepository from "./ProductRepository";
 
 export class CalculateCheckout {
@@ -6,11 +7,10 @@ export class CalculateCheckout {
 	productRepository: ProductRepository;
 
 	constructor(
-		currencyGateway: CurrencyGateway,
-		productRepository: ProductRepository,
+		registry: Registry
 	) {
-		this.currencyGateway = currencyGateway;
-		this.productRepository = productRepository;
+		this.currencyGateway = registry.inject("currencyGateway");
+		this.productRepository = registry.inject("productRepository");
 	}
 
 	async execute(input: Input): Promise<Output> {
