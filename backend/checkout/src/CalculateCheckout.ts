@@ -1,6 +1,7 @@
 import CurrencyGateway from "./CurrencyGateway";
 import { inject, Registry } from "./DI";
 import ProductRepository from "./ProductRepository";
+import ShoppingCart from "./ShoppingCart";
 
 export class CalculateCheckout {
 	@inject("currencyGateway")
@@ -14,32 +15,22 @@ export class CalculateCheckout {
 
 	async execute(input: Input): Promise<Output> {
 		const currency = await this.currencyGateway?.getCurrency(input.currency);
-		if(!currency) throw new Error("Currency not found")
-		let subtotal = 0;
+		if(!currency) throw new Error("Currency not found");
 		const freight = 2.6;
 		const protection = 9;
+		const shoppingCart = new ShoppingCart(freight, protection, input.country);
 		for (const item of input.items) {
-			const product = await this.productRepository?.getProduct(item.productId)
-			const amount = parseFloat(product.amount);
-			const itemAmount = item.quantity * amount;
-			subtotal += itemAmount;
+			const product = await this.productRepository?.getProduct(item.productId);
+			shoppingCart.addItem(parseFloat(product.amount), item.quantity)
 		}
-		let taxes = 0;
-		if (input.country === "BR") {
-			if (subtotal + freight + protection > 50) {
-				const importTax = ((subtotal + freight + protection) * 0.60); // imposto de importação sobre produto + frete + seguro
-				const ICMS = (subtotal + freight + protection + importTax) * 0.17; // ICMS sobre produto + frete + seguro imposto de importação
-				taxes = importTax + ICMS;
-			} else {
-				taxes = (subtotal + freight) * 0.17; // ICMS sobre o produto + frete
-			}
-		}
-		const total = subtotal + taxes + freight;
+		
+		shoppingCart.calculate();
+		
 		return {
-			subtotal: Math.round(subtotal * currency * 100)/100,
-			taxes: Math.round(taxes * currency * 100)/100,
+			subtotal: Math.round(shoppingCart.subtotal * currency * 100)/100,
+			taxes: Math.round(shoppingCart.taxes * currency * 100)/100,
 			freight: Math.round(freight * currency * 100)/100,
-			total: Math.round(total * currency * 100)/100
+			total: Math.round(shoppingCart.total * currency * 100)/100
 		};
 	}
 }
