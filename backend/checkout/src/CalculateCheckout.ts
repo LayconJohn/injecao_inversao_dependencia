@@ -1,23 +1,25 @@
 import CurrencyGateway from "./CurrencyGateway";
-import { Registry } from "./DI";
+import { inject, Registry } from "./DI";
 import ProductRepository from "./ProductRepository";
 
 export class CalculateCheckout {
-	currencyGateway: CurrencyGateway;
-	productRepository: ProductRepository;
+	@inject("currencyGateway")
+	currencyGateway?: CurrencyGateway;
+	@inject("productRepository") 
+	productRepository?: ProductRepository;
 
 	constructor() {
-		this.currencyGateway = Registry.getInstance().inject("currencyGateway");
-		this.productRepository = Registry.getInstance().inject("productRepository");
+
 	}
 
 	async execute(input: Input): Promise<Output> {
-		const currency = await this.currencyGateway.getCurrency(input.currency);
+		const currency = await this.currencyGateway?.getCurrency(input.currency);
+		if(!currency) throw new Error("Currency not found")
 		let subtotal = 0;
 		const freight = 2.6;
 		const protection = 9;
 		for (const item of input.items) {
-			const product = await this.productRepository.getProduct(item.productId)
+			const product = await this.productRepository?.getProduct(item.productId)
 			const amount = parseFloat(product.amount);
 			const itemAmount = item.quantity * amount;
 			subtotal += itemAmount;

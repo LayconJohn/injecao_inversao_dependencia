@@ -21,3 +21,11 @@ export class Registry {
         return Registry.instance;
     }
 }
+
+export function inject(name: string) {
+    return function (obj: any, propertyKey: string) {
+        obj[propertyKey] = new Proxy({}, {});
+        const dependency = Registry.getInstance().inject(name);
+        
+    }
+}
