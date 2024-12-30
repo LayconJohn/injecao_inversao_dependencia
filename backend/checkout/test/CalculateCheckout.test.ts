@@ -8,11 +8,10 @@ let calculateCheckout: CalculateCheckout;
 beforeEach(() => {
     const currencyGateway = new CurrencyGatewayHTTP();
     const productRepository = new ProductRepositoryDatabase();
-    const registry = new Registry();
-    registry.provide("currencyGateway", currencyGateway);
-    registry.provide("productRepository", productRepository);
+    Registry.getInstance().provide("currencyGateway", currencyGateway);
+    Registry.getInstance().provide("productRepository", productRepository);
 
-    calculateCheckout = new CalculateCheckout(registry);
+    calculateCheckout = new CalculateCheckout();
 })
 test("Deve adicionar um pedidos com um ou mais itens adicionados", async () => {
     const input = {
