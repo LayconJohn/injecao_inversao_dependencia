@@ -1,3 +1,4 @@
+import { CalculateTaxFactory } from "./CalculateTax";
 import Item from "./Item";
 
 export default class ShoppingCart {
@@ -32,16 +33,12 @@ export default class ShoppingCart {
     }
 
     private calculateTaxes() {
-        this.taxes = 0;
-		if (this.country === "BR") {
-			if (this.subtotal + this.freight + this.protection > 50) {
-				const importTax = ((this.subtotal + this.freight + this.protection) * 0.60); // imposto de importação sobre produto + frete + seguro
-				const ICMS = (this.subtotal + this.freight + this.protection + importTax) * 0.17; // ICMS sobre produto + frete + seguro imposto de importação
-				this.taxes = importTax + ICMS;
-			} else {
-				this.taxes = (this.subtotal + this.freight) * 0.17; // ICMS sobre o produto + frete
-			}
-		}
+        this.taxes = CalculateTaxFactory.create(this.country).calculate(
+            this.subtotal,
+            this.freight,
+            this.protection
+        );
+		
     }
 
     private calculateTotal() {
